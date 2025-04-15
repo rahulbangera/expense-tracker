@@ -6,7 +6,6 @@ import { db } from "~/server/db";
 import bcrypt from "bcryptjs";
 import { signInSchema } from "~/lib/zod";
 import { getUserById } from "~/utils/auth";
-
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -90,7 +89,9 @@ export const authConfig: NextAuthConfig = {
 
         if (!user.verified) {
           console.log("User not verified");
-          throw new Error(JSON.stringify({ message: "User not verified", status: 403 }));
+          throw new Error(
+            JSON.stringify({ message: "User not verified", status: 403 }),
+          );
         }
 
         return user;
@@ -125,7 +126,6 @@ export const authConfig: NextAuthConfig = {
       if (token.sub && session.user) {
         session.user.id = token.sub;
         session.user.name = token.name;
-        session.user.role = token.role as UserRole;
       }
       return session;
     },
@@ -134,7 +134,6 @@ export const authConfig: NextAuthConfig = {
       const existingUser = await getUserById(token.sub);
       if (existingUser) {
         token.id = existingUser.id;
-        token.role = existingUser.role;
         token.name = existingUser.name;
         token.email = existingUser.email;
       }

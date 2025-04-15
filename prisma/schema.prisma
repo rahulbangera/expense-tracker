@@ -14,18 +14,6 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
-}
-
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
@@ -54,28 +42,6 @@ model Session {
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model User {
-    id            String    @id @default(cuid())
-    name          String
-    email         String   @unique
-    emailVerified DateTime?
-    image         String?
-    phone         Int
-    Groups        Group[]
-    createdAt     DateTime   @default(now())
-    accounts      Account[]
-    sessions      Session[]
-}
-
-model Group {
-    id            String      @id @default(cuid())
-    name          String      
-    createdById   String
-    createdByUser User          @relation(fields: [createdById], references: [id], onDelete: Cascade) 
-    createdAt       DateTime        @default(now())
-}
-
-
 model VerificationToken {
     identifier String
     token      String   @unique
@@ -83,3 +49,56 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
+
+model User {
+    id            String    @id @default(cuid())
+    name          String
+    email         String   @unique
+    password    String
+    emailVerified DateTime?
+    image         String?
+    phone         Int
+    verified      Boolean
+    otp           Int[]
+    groups        Group[]
+    groupMembers  GroupMembers[]
+    expenses    Expenses[]
+    accounts      Account[]
+    sessions      Session[]
+    createdAt     DateTime   @default(now())
+}
+
+
+
+model GroupMembers{
+    id            String      @id @default(cuid())
+    groupId       String
+    group         Group         @relation(fields: [groupId], references: [id])
+    userId        String
+    user          User          @relation(fields: [userId], references: [id])
+    joinedAt      DateTime      @default(now())
+}
+
+model Group {
+    id            String      @id @default(cuid())
+    name          String      
+    createdById   String
+    createdByUser User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    expenses    Expenses[] 
+    groupMembers    GroupMembers[]
+    createdAt       DateTime        @default(now())
+}
+
+model Expenses {
+    id          String      @id @default(cuid())
+    groupid     String
+    group       Group   @relation(fields: [groupid], references: [id])
+    paidById    String
+    paidByUser  User    @relation(fields: [paidById], references: [id])
+    amount      Decimal     
+    description String      @db.Text
+    createdAt   DateTime    @default(now())
+}
+
+
+
