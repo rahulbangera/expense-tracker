@@ -56,14 +56,25 @@ model Session {
 
 model User {
     id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
+    name          String
+    email         String   @unique
     emailVerified DateTime?
     image         String?
+    phone         Int
+    Groups        Group[]
+    createdAt     DateTime   @default(now())
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
 }
+
+model Group {
+    id            String      @id @default(cuid())
+    name          String      
+    createdById   String
+    createdByUser User          @relation(fields: [createdById], references: [id], onDelete: Cascade) 
+    createdAt       DateTime        @default(now())
+}
+
 
 model VerificationToken {
     identifier String
